@@ -97,6 +97,7 @@ class Tetrimino
   
   def fall(dy)
     @last_chance -= 1
+    @y = @y.to_i if dy == 1
     if can_move?(0, 1, 0) then
       @y += dy
     else
