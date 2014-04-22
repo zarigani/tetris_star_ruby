@@ -148,10 +148,11 @@ Game.run(FIELD_W, FIELD_H, :title => "tetris") do |game|
   dr = 0
   
   break if Input.keys(:keyboard).include?(:escape)
-  dx =  1 if Input.keys(:keyboard).include?(:right)
-  dx = -1 if Input.keys(:keyboard).include?(:left)
-  dr =  1 if Input.keys(:keyboard).include?(:x)
-  dr =  3 if Input.keys(:keyboard).include?(:z)
+  dx =  1 if Input.keys(:keyboard, {:duration => 1, :delay => 3, :interval => 1}).include?(:right)
+  dx = -1 if Input.keys(:keyboard, {:duration => 1, :delay => 3, :interval => 1}).include?(:left)
+  dy =  1 if Input.keys(:keyboard, {:duration =>-1, :delay =>-1, :interval => 0}).include?(:down)
+  dr =  1 if Input.keys(:keyboard, {:duration => 1, :delay => 3, :interval => 3}).include?(:x)
+  dr =  3 if Input.keys(:keyboard, {:duration => 1, :delay => 3, :interval => 3}).include?(:z)
 
   @tetrimino.rotate(dr)
   @tetrimino.side_step(dx)
