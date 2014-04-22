@@ -9,6 +9,22 @@ FIELD_H = BLOCK_SIZE * FIELD_ROW
 
 
 
+class Texture
+  def draw_block(x, y)
+    render_rect(x * BLOCK_SIZE + 1, y * BLOCK_SIZE + 1, BLOCK_SIZE - 1, BLOCK_SIZE - 1, Color.new(255, 255, 255))
+  end
+
+  def draw_tetrimino(tetrimino)
+    return if !tetrimino
+    tetrimino.blocks.each_with_index do |row, r|
+      row.each_with_index do |col, c|
+        draw_block(tetrimino.x + c , tetrimino.y + r) if col == 1
+      end
+    end
+  end
+
+end
+
 class Tetrimino
   attr_reader :blocks, :x, :y
   
@@ -53,19 +69,6 @@ end
 
 
 
-def draw_block(game, x, y)
-  game.screen.render_rect(x * BLOCK_SIZE, y * BLOCK_SIZE, BLOCK_SIZE, BLOCK_SIZE, Color.new(255, 255, 255))
-end
-
-def draw_tetrimino(game, tetrimino)
-  return if !tetrimino
-  tetrimino.blocks.each_with_index do |row, r|
-    row.each_with_index do |col, c|
-      draw_block(game, tetrimino.x + c , tetrimino.y + r) if col == 1
-    end
-  end
-end
-
 Game.run(FIELD_W, FIELD_H, :title => "tetris") do |game|
   @tetrimino ||= Tetrimino.new
   dx = 0
@@ -80,5 +83,5 @@ Game.run(FIELD_W, FIELD_H, :title => "tetris") do |game|
   @tetrimino = nil if @tetrimino.y >= FIELD_ROW
 
   game.screen.clear
-  draw_tetrimino(game, @tetrimino)
+  game.screen.draw_tetrimino(@tetrimino)
 end
