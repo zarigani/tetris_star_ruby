@@ -26,7 +26,7 @@ class Texture
 end
 
 class Tetrimino
-  attr_reader :blocks, :x, :y
+  attr_reader :state, :x, :y
   
   @@minos = []
   @@minos << [[0,0,0,0],
@@ -55,6 +55,7 @@ class Tetrimino
     @id = rand(0..6)
     @blocks = @@minos[@id]
     @x, @y, @angle = 3, 0, 0
+    @state = :live
   end
   
   def blocks(angle = @angle)
@@ -71,15 +72,41 @@ class Tetrimino
   end
   
   def rotate(dr)
-    @angle += dr
+    if can_move?(0, 0, dr) then
+      @angle += dr
+    end
   end
   
   def side_step(dx)
-    @x += dx
+    if can_move?(dx, 0, 0) then
+      @x += dx
+    end
   end
   
   def fall(dy)
-    @y += dy
+    if can_move?(0, 1, 0) then
+      @y += dy
+    else
+      @state = :dead
+    end
+  end
+
+  def can_move?(dx, dy, dr)
+    x = @x + dx
+    y = @y + dy
+    angle = @angle + dr
+    blocks(angle).each_with_index do |row, r|
+      row.each_with_index do |col, c|
+        if col == 1 then
+          if x + c < 0 ||
+             x + c >= FIELD_COL ||
+             y + r >= FIELD_ROW then
+            return false
+          end
+        end
+      end
+    end
+    true
   end
   
 end
@@ -101,7 +128,7 @@ Game.run(FIELD_W, FIELD_H, :title => "tetris") do |game|
   @tetrimino.rotate(dr)
   @tetrimino.side_step(dx)
   @tetrimino.fall(dy)
-  @tetrimino = nil if @tetrimino.y >= FIELD_ROW
+  @tetrimino = nil if @tetrimino.state == :dead
 
   game.screen.clear
   game.screen.draw_tetrimino(@tetrimino)
