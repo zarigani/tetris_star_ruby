@@ -32,9 +32,10 @@ class Texture
 
   def draw_field(field)
     return if !field
+    alpha = (field.state == :live ? 255 : 64)
     field.matrix.each_with_index do |row, r|
       row.each_with_index do |col, c|
-        draw_block(c, r, RGBS[col]) if col != nil
+        draw_block(c, r, RGBS[col] + [alpha]) if col != nil
       end
     end
   end
@@ -143,6 +144,7 @@ class Field
 
   def initialize(row, col)
     @matrix = Array.new(row){Array.new(col)}
+    @state = :live
   end
 
   def import(tetrimino)
@@ -159,6 +161,10 @@ class Field
     deleted_line.times{@matrix.unshift(Array.new(10){nil})}
   end
 
+  def freeze
+    @state = :dead
+  end
+
 end
 
 
@@ -167,7 +173,7 @@ Game.run(FIELD_W, FIELD_H, :title => "tetris") do |game|
   @field ||= Field.new(FIELD_ROW, FIELD_COL)
   @tetrimino ||= Tetrimino.new(game, @field)
   dx = 0
-  dy = 0.125
+  dy = 0.0625
   dr = 0
   
   break if Input.keys(:keyboard).include?(:escape)
@@ -176,6 +182,7 @@ Game.run(FIELD_W, FIELD_H, :title => "tetris") do |game|
   dy =  1 if Input.keys(:keyboard, {:duration =>-1, :delay =>-1, :interval => 0}).include?(:down)
   dr =  1 if Input.keys(:keyboard, {:duration => 1, :delay => 3, :interval => 3}).include?(:x)
   dr =  3 if Input.keys(:keyboard, {:duration => 1, :delay => 3, :interval => 3}).include?(:z)
+  next if @field.state == :dead
 
   @tetrimino.rotate(dr)
   @tetrimino.side_step(dx)
@@ -184,6 +191,7 @@ Game.run(FIELD_W, FIELD_H, :title => "tetris") do |game|
   if @tetrimino.state == :dead then
     @field.import(@tetrimino)
     @field.clear_lines
+    @field.freeze if @tetrimino.y <= 0
     @tetrimino = nil
   end
 
