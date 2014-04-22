@@ -6,19 +6,26 @@ FIELD_ROW = 20
 FIELD_COL = 10
 FIELD_W = BLOCK_SIZE * FIELD_COL
 FIELD_H = BLOCK_SIZE * FIELD_ROW
+RGBS = [[  0, 255, 255],
+        [255, 255,   0],
+        [  0, 255,   0],
+        [255,   0,   0],
+        [  0,   0, 255],
+        [255, 127,   0],
+        [255,   0, 255]]
 
 
 
 class Texture
-  def draw_block(x, y)
-    render_rect(x * BLOCK_SIZE + 1, y * BLOCK_SIZE + 1, BLOCK_SIZE - 1, BLOCK_SIZE - 1, Color.new(255, 255, 255))
+  def draw_block(x, y, rgb)
+    render_rect(x * BLOCK_SIZE + 1, y * BLOCK_SIZE + 1, BLOCK_SIZE - 1, BLOCK_SIZE - 1, Color.new(*rgb))
   end
 
   def draw_tetrimino(tetrimino)
     return if !tetrimino
     tetrimino.blocks.each_with_index do |row, r|
       row.each_with_index do |col, c|
-        draw_block(tetrimino.x + c , tetrimino.y + r) if col == 1
+        draw_block(tetrimino.x + c , tetrimino.y + r, RGBS[tetrimino.id]) if col == 1
       end
     end
   end
@@ -27,7 +34,7 @@ class Texture
     return if !field
     field.matrix.each_with_index do |row, r|
       row.each_with_index do |col, c|
-        draw_block(c, r) if col != nil
+        draw_block(c, r, RGBS[col]) if col != nil
       end
     end
   end
@@ -35,7 +42,7 @@ class Texture
 end
 
 class Tetrimino
-  attr_reader :state, :x, :y
+  attr_reader :id, :state, :x, :y
   
   @@minos = []
   @@minos << [[0,0,0,0],
@@ -141,7 +148,7 @@ class Field
   def import(tetrimino)
     tetrimino.blocks.each_with_index do |row, r|
       row.each_with_index do |col, c|
-        @matrix[tetrimino.y + r][tetrimino.x + c] = 1 if col == 1
+        @matrix[tetrimino.y + r][tetrimino.x + c] = tetrimino.id if col == 1
       end
     end
   end
