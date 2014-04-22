@@ -10,15 +10,15 @@ FIELD_H = BLOCK_SIZE * FIELD_ROW
 white = Color.new(255, 255, 255)
 
 y = 0
-x = 8
+x = 3
 Game.run(FIELD_W, FIELD_H, :title => "tetris") do |game|
   break if Input.keys(:keyboard).include?(:escape)
-  x += 8 if Input.keys(:keyboard).include?(:right)
-  x -= 8 if Input.keys(:keyboard).include?(:left)
+  x += 1 if Input.keys(:keyboard).include?(:right)
+  x -= 1 if Input.keys(:keyboard).include?(:left)
 
-  y += 1
-  y = 0 if y > 240
+  y += 0.125
+  y = 0 if y >= FIELD_ROW
 
   game.screen.clear
-  game.screen.render_rect(x, y, 16, 16, white)
+  game.screen.render_rect(x * BLOCK_SIZE, y * BLOCK_SIZE, BLOCK_SIZE, BLOCK_SIZE, white)
 end
