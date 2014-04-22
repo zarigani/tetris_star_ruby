@@ -23,6 +23,15 @@ class Texture
     end
   end
 
+  def draw_field(field)
+    return if !field
+    field.matrix.each_with_index do |row, r|
+      row.each_with_index do |col, c|
+        draw_block(c, r) if col != nil
+      end
+    end
+  end
+
 end
 
 class Tetrimino
@@ -51,7 +60,8 @@ class Tetrimino
               [1,1,1],
               [0,0,0]]
   
-  def initialize
+  def initialize(field)
+    @field = field
     @id = rand(0..6)
     @blocks = @@minos[@id]
     @x, @y, @angle = 3, 0, 0
@@ -100,7 +110,8 @@ class Tetrimino
         if col == 1 then
           if x + c < 0 ||
              x + c >= FIELD_COL ||
-             y + r >= FIELD_ROW then
+             y + r >= FIELD_ROW ||
+             @field.matrix[y + r][x + c] != nil then
             return false
           end
         end
@@ -111,10 +122,27 @@ class Tetrimino
   
 end
 
+class Field
+  attr_reader :matrix, :state
+
+  def initialize(row, col)
+    @matrix = Array.new(row){Array.new(col)}
+  end
+
+  def import(tetrimino)
+    tetrimino.blocks.each_with_index do |row, r|
+      row.each_with_index do |col, c|
+        @matrix[tetrimino.y + r][tetrimino.x + c] = 1 if col == 1
+      end
+    end
+  end
+end
+
 
 
 Game.run(FIELD_W, FIELD_H, :title => "tetris") do |game|
-  @tetrimino ||= Tetrimino.new
+  @field ||= Field.new(FIELD_ROW, FIELD_COL)
+  @tetrimino ||= Tetrimino.new(@field)
   dx = 0
   dy = 0.125
   dr = 0
@@ -128,8 +156,13 @@ Game.run(FIELD_W, FIELD_H, :title => "tetris") do |game|
   @tetrimino.rotate(dr)
   @tetrimino.side_step(dx)
   @tetrimino.fall(dy)
-  @tetrimino = nil if @tetrimino.state == :dead
+
+  if @tetrimino.state == :dead then
+    @field.import(@tetrimino)
+    @tetrimino = nil
+  end
 
   game.screen.clear
   game.screen.draw_tetrimino(@tetrimino)
+  game.screen.draw_field(@field)
 end
