@@ -1,11 +1,17 @@
 require "starruby"
 include StarRuby
 
+BLOCK_SIZE = 32
+FIELD_ROW = 20
+FIELD_COL = 10
+FIELD_W = BLOCK_SIZE * FIELD_COL
+FIELD_H = BLOCK_SIZE * FIELD_ROW
+
 white = Color.new(255, 255, 255)
 
 y = 0
 x = 8
-Game.run(320, 240, :title => "tetris") do |game|
+Game.run(FIELD_W, FIELD_H, :title => "tetris") do |game|
   break if Input.keys(:keyboard).include?(:escape)
   x += 8 if Input.keys(:keyboard).include?(:right)
   x -= 8 if Input.keys(:keyboard).include?(:left)
