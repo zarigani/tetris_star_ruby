@@ -60,12 +60,14 @@ class Tetrimino
               [1,1,1],
               [0,0,0]]
   
-  def initialize(field)
+  def initialize(game, field)
+    @game = game
     @field = field
     @id = rand(0..6)
     @blocks = @@minos[@id]
     @x, @y, @angle = 3, 0, 0
     @state = :live
+    @last_chance = 0
   end
   
   def blocks(angle = @angle)
@@ -94,10 +96,16 @@ class Tetrimino
   end
   
   def fall(dy)
+    @last_chance -= 1
     if can_move?(0, 1, 0) then
       @y += dy
     else
-      @state = :dead
+      case
+      when @last_chance < 0
+        @last_chance = @game.fps / 2
+      when @last_chance == 0
+        @state = :dead
+      end
     end
   end
 
@@ -149,7 +157,7 @@ end
 
 Game.run(FIELD_W, FIELD_H, :title => "tetris") do |game|
   @field ||= Field.new(FIELD_ROW, FIELD_COL)
-  @tetrimino ||= Tetrimino.new(@field)
+  @tetrimino ||= Tetrimino.new(game, @field)
   dx = 0
   dy = 0.125
   dr = 0
