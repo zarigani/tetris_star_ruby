@@ -136,6 +136,13 @@ class Field
       end
     end
   end
+
+  def clear_lines
+    @matrix.reject!{|row| !row.include?(nil)}
+    deleted_line = FIELD_ROW - @matrix.size
+    deleted_line.times{@matrix.unshift(Array.new(10){nil})}
+  end
+
 end
 
 
@@ -160,6 +167,7 @@ Game.run(FIELD_W, FIELD_H, :title => "tetris") do |game|
 
   if @tetrimino.state == :dead then
     @field.import(@tetrimino)
+    @field.clear_lines
     @tetrimino = nil
   end
 
