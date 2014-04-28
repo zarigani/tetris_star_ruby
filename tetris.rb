@@ -57,6 +57,14 @@ class Texture
     render_text(num.to_s, x,  y, FONT, Color.new(0, 0, 0))
   end
 
+  def draw_message(str)
+    font = Font.new("/Library/Fonts/Arial Bold.ttf", 36)
+    font_width, font_height = font.get_size(str)
+    x = (self.width  - font_width ) / 2
+    y = (self.height - font_height) / 2
+    render_text(str, x,  y, font, Color.new(255, 255, 255))
+  end
+
 end
 
 class Tetrimino
@@ -192,6 +200,14 @@ class Frame
     @score_view = Texture.new(4 * BLOCK_SIZE, 1 * BLOCK_SIZE)
     @lines_view = Texture.new(4 * BLOCK_SIZE, 1 * BLOCK_SIZE)
     @next_view  = Texture.new(FIELD_W,        2 * BLOCK_SIZE)
+
+    @pause_overlay    = Texture.new(WINDOW_W, WINDOW_H)
+    @pause_overlay.fill(Color.new(0, 0, 0, 160))
+    @pause_overlay.draw_message("Pause")
+
+    @gameover_overlay = Texture.new(WINDOW_W, WINDOW_H)
+    @gameover_overlay.fill(Color.new(0, 0, 0, 160))
+    @gameover_overlay.draw_message("Game Over")
   end
   
   def update(sender)
@@ -215,10 +231,18 @@ class Frame
     @screen.draw_text("NEXT", 4,  1)
     @screen.render_texture(@next_view ,  1 * BLOCK_SIZE,  2 * BLOCK_SIZE)
   end
+
+  def overlay(mode)
+    case mode
+    when :pause    then @screen.render_texture(@pause_overlay    , 0, 0)
+    when :gameover then @screen.render_texture(@gameover_overlay , 0, 0)
+    end
+  end
+
 end
 
 class Dealer
-  attr_reader :field, :nextmino, :tetrimino, :score_counter, :lines_counter
+  attr_reader :state, :field, :nextmino, :tetrimino, :score_counter, :lines_counter
 
   def initialize(game = @game)
     @game    ||= game
@@ -276,10 +300,12 @@ class Dealer
 
   def pause
     @frame.update(self)
+    @frame.overlay(:pause)
   end
 
   def gameover
     @frame.update(self)
+    @frame.overlay(:gameover)
   end
 
   def reset
