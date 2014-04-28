@@ -223,42 +223,69 @@ class Frame
   end
 end
 
+class Dealer
+  def initialize(game)
+    @game      = game
+    @state     = :play
+    @field     = Field.new(FIELD_ROW, FIELD_COL)
+    @nextmino  = Tetrimino.new(game, @field)
+    @tetrimino = Tetrimino.new(game, @field)
+    @frame     = Frame.new(game.screen)
 
-
-@score_counter = 0
-@lines_counter = 0
-
-Game.run(WINDOW_W, WINDOW_H, :title => "tetris") do |game|
-  @field     ||= Field.new(FIELD_ROW, FIELD_COL)
-  @nextmino  ||= Tetrimino.new(game, @field)
-  @tetrimino ||= Tetrimino.new(game, @field)
-  @frame     ||= Frame.new(game.screen)
-  dx = 0
-  dy = 0.0625
-  dr = 0
-  
-  break if Input.keys(:keyboard).include?(:escape)
-  dx =  1 if Input.keys(:keyboard, {:duration => 1, :delay => 3, :interval => 1}).include?(:right)
-  dx = -1 if Input.keys(:keyboard, {:duration => 1, :delay => 3, :interval => 1}).include?(:left)
-  dy =  1 if Input.keys(:keyboard, {:duration =>-1, :delay =>-1, :interval => 0}).include?(:down)
-  dr =  1 if Input.keys(:keyboard, {:duration => 1, :delay => 3, :interval => 3}).include?(:x)
-  dr =  3 if Input.keys(:keyboard, {:duration => 1, :delay => 3, :interval => 3}).include?(:z)
-  next if @field.state == :dead
-
-  @tetrimino.rotate(dr)
-  @tetrimino.side_step(dx)
-  @tetrimino.fall(dy)
-
-  if @tetrimino.state == :dead then
-    @field.import(@tetrimino)
-    n = @field.clear_lines
-    @score_counter += n**2 * 100
-    @lines_counter += n
-    @field.freeze if @tetrimino.y <= 0
-
-    @tetrimino = @nextmino
-    @nextmino  = nil
+    @score_counter = 0
+    @lines_counter = 0
   end
 
-  @frame.update(self)
+  def update
+    case @state
+    when :play     then play
+    when :pause    then pause
+    when :gameover then gameover
+    end
+  end
+
+  def play
+    dx = 0
+    dy = 0.0625
+    dr = 0
+
+    dx =  1 if Input.keys(:keyboard, {:duration => 1, :delay => 3, :interval => 1}).include?(:right)
+    dx = -1 if Input.keys(:keyboard, {:duration => 1, :delay => 3, :interval => 1}).include?(:left)
+    dy =  1 if Input.keys(:keyboard, {:duration =>-1, :delay =>-1, :interval => 0}).include?(:down)
+    dr =  1 if Input.keys(:keyboard, {:duration => 1, :delay => 3, :interval => 3}).include?(:x)
+    dr =  3 if Input.keys(:keyboard, {:duration => 1, :delay => 3, :interval => 3}).include?(:z)
+    return if @field.state == :dead
+
+    @tetrimino.rotate(dr)
+    @tetrimino.side_step(dx)
+    @tetrimino.fall(dy)
+
+    if @tetrimino.state == :dead then
+      @field.import(@tetrimino)
+      n = @field.clear_lines
+      @score_counter += n**2 * 100
+      @lines_counter += n
+      @field.freeze if @tetrimino.y <= 0
+
+      @tetrimino = @nextmino
+      @nextmino  = Tetrimino.new(@game, @field)
+    end
+
+    @frame.update(self)
+  end
+
+  def pause
+  end
+
+  def gameover
+  end
+
+end
+
+
+
+Game.run(WINDOW_W, WINDOW_H, :title => "tetris") do |game|
+  @dealer ||= Dealer.new(game)
+  break if Input.keys(:keyboard).include?(:escape)
+  @dealer.update
 end
