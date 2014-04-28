@@ -224,8 +224,8 @@ class Frame
 end
 
 class Dealer
-  def initialize(game)
-    @game      = game
+  def initialize(game = @game)
+    @game    ||= game
     @state     = :play
     @field     = Field.new(FIELD_ROW, FIELD_COL)
     @nextmino  = Tetrimino.new(game, @field)
@@ -241,6 +241,7 @@ class Dealer
     when :play     then play
     when :pause    then pause
     when :gameover then gameover
+    when :reset    then reset
     end
   end
 
@@ -254,7 +255,10 @@ class Dealer
     dy =  1 if Input.keys(:keyboard, {:duration =>-1, :delay =>-1, :interval => 0}).include?(:down)
     dr =  1 if Input.keys(:keyboard, {:duration => 1, :delay => 3, :interval => 3}).include?(:x)
     dr =  3 if Input.keys(:keyboard, {:duration => 1, :delay => 3, :interval => 3}).include?(:z)
-    return if @field.state == :dead
+    if @field.state == :dead then
+      @state = :gameover
+      return
+    end
 
     @tetrimino.rotate(dr)
     @tetrimino.side_step(dx)
@@ -275,9 +279,25 @@ class Dealer
   end
 
   def pause
+    @frame.update(self)
   end
 
   def gameover
+    @frame.update(self)
+  end
+
+  def reset
+    initialize
+  end
+
+  def toggle_state
+    if    @state == :play then
+      @state = :pause
+    elsif @state == :pause then
+      @state = :play
+    elsif @state == :gameover then
+      @state = :reset
+    end
   end
 
 end
@@ -287,5 +307,6 @@ end
 Game.run(WINDOW_W, WINDOW_H, :title => "tetris") do |game|
   @dealer ||= Dealer.new(game)
   break if Input.keys(:keyboard).include?(:escape)
+  @dealer.toggle_state if Input.keys(:keyboard, {:duration => 1, :delay => -1, :interval => 0}).include?(:space)
   @dealer.update
 end
