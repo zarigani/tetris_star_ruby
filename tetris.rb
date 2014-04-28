@@ -200,17 +200,11 @@ class Frame
     @lines_view.fill(Color.new(0, 0, 0, 128))
     @next_view.fill(Color.new(255, 255, 255, 128))
 
-    @field         = sender.instance_variable_get(:@field)
-    @tetrimino     = sender.instance_variable_get(:@tetrimino)
-    @score_counter = sender.instance_variable_get(:@score_counter)
-    @lines_counter = sender.instance_variable_get(:@lines_counter)
-    @nextmino      = sender.instance_variable_get(:@nextmino)
-
-    @field_view.draw_field(@field)
-    @field_view.draw_tetrimino(@tetrimino)
-    @score_view.draw_number(@score_counter)
-    @lines_view.draw_number(@lines_counter)
-    @next_view.draw_tetrimino(@nextmino)
+    @field_view.draw_field(sender.field)
+    @field_view.draw_tetrimino(sender.tetrimino)
+    @score_view.draw_number(sender.score_counter)
+    @lines_view.draw_number(sender.lines_counter)
+    @next_view.draw_tetrimino(sender.nextmino)
 
     @screen.fill(Color.new(255, 255, 255))
     @screen.render_texture(@field_view,  1 * BLOCK_SIZE,  5 * BLOCK_SIZE)
@@ -224,6 +218,8 @@ class Frame
 end
 
 class Dealer
+  attr_reader :field, :nextmino, :tetrimino, :score_counter, :lines_counter
+
   def initialize(game = @game)
     @game    ||= game
     @state     = :play
