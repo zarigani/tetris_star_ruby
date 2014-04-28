@@ -6,6 +6,10 @@ FIELD_ROW = 20
 FIELD_COL = 10
 FIELD_W = BLOCK_SIZE * FIELD_COL
 FIELD_H = BLOCK_SIZE * FIELD_ROW
+WINDOW_ROW = 26
+WINDOW_COL = 18
+WINDOW_W = BLOCK_SIZE * WINDOW_COL
+WINDOW_H = BLOCK_SIZE * WINDOW_ROW
 RGBS = [[  0, 255, 255],
         [255, 255,   0],
         [  0, 255,   0],
@@ -167,11 +171,41 @@ class Field
 
 end
 
+class Frame
+  def initialize(screen)
+    @screen = screen
+    @field_view = Texture.new(FIELD_W,               FIELD_H)
+    @score_view = Texture.new(4 * BLOCK_SIZE, 1 * BLOCK_SIZE)
+    @lines_view = Texture.new(4 * BLOCK_SIZE, 1 * BLOCK_SIZE)
+    @next_view  = Texture.new(FIELD_W,        2 * BLOCK_SIZE)
+  end
+  
+  def update(sender)
+    @field_view.fill(Color.new(0, 0, 0, 128))
+    @score_view.fill(Color.new(0, 0, 0, 128))
+    @lines_view.fill(Color.new(0, 0, 0, 128))
+    @next_view.fill(Color.new(0, 0, 0, 128))
+
+    @field     = sender.instance_variable_get(:@field)
+    @tetrimino = sender.instance_variable_get(:@tetrimino)
+
+    @field_view.draw_field(@field)
+    @field_view.draw_tetrimino(@tetrimino)
+
+    @screen.fill(Color.new(255, 255, 255))
+    @screen.render_texture(@field_view,  1 * BLOCK_SIZE,  5 * BLOCK_SIZE)
+    @screen.render_texture(@score_view, 13 * BLOCK_SIZE,  6 * BLOCK_SIZE)
+    @screen.render_texture(@lines_view, 13 * BLOCK_SIZE, 10 * BLOCK_SIZE)
+    @screen.render_texture(@next_view ,  1 * BLOCK_SIZE,  2 * BLOCK_SIZE)
+  end
+end
 
 
-Game.run(FIELD_W, FIELD_H, :title => "tetris") do |game|
-  @field ||= Field.new(FIELD_ROW, FIELD_COL)
+
+Game.run(WINDOW_W, WINDOW_H, :title => "tetris") do |game|
+  @field     ||= Field.new(FIELD_ROW, FIELD_COL)
   @tetrimino ||= Tetrimino.new(game, @field)
+  @frame     ||= Frame.new(game.screen)
   dx = 0
   dy = 0.0625
   dr = 0
@@ -195,7 +229,5 @@ Game.run(FIELD_W, FIELD_H, :title => "tetris") do |game|
     @tetrimino = nil
   end
 
-  game.screen.clear
-  game.screen.draw_tetrimino(@tetrimino)
-  game.screen.draw_field(@field)
+  @frame.update(self)
 end
