@@ -17,6 +17,7 @@ RGBS = [[  0, 255, 255],
         [  0,   0, 255],
         [255, 127,   0],
         [255,   0, 255]]
+FONT = Font.new("/Library/Fonts/Arial Bold.ttf", 24)
 
 
 
@@ -42,6 +43,10 @@ class Texture
         draw_block(c, r, RGBS[col] + [alpha]) if col != nil
       end
     end
+  end
+
+  def draw_text(str, col, row)
+    render_text(str, col * BLOCK_SIZE,  row * BLOCK_SIZE, FONT, Color.new(0, 0, 0))
   end
 
 end
@@ -194,8 +199,11 @@ class Frame
 
     @screen.fill(Color.new(255, 255, 255))
     @screen.render_texture(@field_view,  1 * BLOCK_SIZE,  5 * BLOCK_SIZE)
+    @screen.draw_text("SCORE", 13,  5)
     @screen.render_texture(@score_view, 13 * BLOCK_SIZE,  6 * BLOCK_SIZE)
+    @screen.draw_text("LINES", 13,  9)
     @screen.render_texture(@lines_view, 13 * BLOCK_SIZE, 10 * BLOCK_SIZE)
+    @screen.draw_text("NEXT", 4,  1)
     @screen.render_texture(@next_view ,  1 * BLOCK_SIZE,  2 * BLOCK_SIZE)
   end
 end
