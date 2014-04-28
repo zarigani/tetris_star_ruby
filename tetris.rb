@@ -49,6 +49,14 @@ class Texture
     render_text(str, col * BLOCK_SIZE,  row * BLOCK_SIZE, FONT, Color.new(0, 0, 0))
   end
 
+  def draw_number(num)
+    font_width, font_height = FONT.get_size(num.to_s)
+    margin_width, margin_height = 5, 0
+    x = self.width  - font_width  - margin_width
+    y = self.height - font_height - margin_height
+    render_text(num.to_s, x,  y, FONT, Color.new(0, 0, 0))
+  end
+
 end
 
 class Tetrimino
@@ -168,6 +176,7 @@ class Field
     @matrix.reject!{|row| !row.include?(nil)}
     deleted_line = FIELD_ROW - @matrix.size
     deleted_line.times{@matrix.unshift(Array.new(10){nil})}
+    deleted_line
   end
 
   def freeze
@@ -191,11 +200,15 @@ class Frame
     @lines_view.fill(Color.new(0, 0, 0, 128))
     @next_view.fill(Color.new(0, 0, 0, 128))
 
-    @field     = sender.instance_variable_get(:@field)
-    @tetrimino = sender.instance_variable_get(:@tetrimino)
+    @field         = sender.instance_variable_get(:@field)
+    @tetrimino     = sender.instance_variable_get(:@tetrimino)
+    @score_counter = sender.instance_variable_get(:@score_counter)
+    @lines_counter = sender.instance_variable_get(:@lines_counter)
 
     @field_view.draw_field(@field)
     @field_view.draw_tetrimino(@tetrimino)
+    @score_view.draw_number(@score_counter)
+    @lines_view.draw_number(@lines_counter)
 
     @screen.fill(Color.new(255, 255, 255))
     @screen.render_texture(@field_view,  1 * BLOCK_SIZE,  5 * BLOCK_SIZE)
@@ -209,6 +222,9 @@ class Frame
 end
 
 
+
+@score_counter = 0
+@lines_counter = 0
 
 Game.run(WINDOW_W, WINDOW_H, :title => "tetris") do |game|
   @field     ||= Field.new(FIELD_ROW, FIELD_COL)
@@ -232,7 +248,9 @@ Game.run(WINDOW_W, WINDOW_H, :title => "tetris") do |game|
 
   if @tetrimino.state == :dead then
     @field.import(@tetrimino)
-    @field.clear_lines
+    n = @field.clear_lines
+    @score_counter += n**2 * 100
+    @lines_counter += n
     @field.freeze if @tetrimino.y <= 0
     @tetrimino = nil
   end
