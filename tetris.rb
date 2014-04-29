@@ -257,12 +257,7 @@ class Dealer
   end
 
   def update
-    case @state
-    when :play     then play
-    when :pause    then pause
-    when :gameover then gameover
-    when :reset    then reset
-    end
+    send(@state)
   end
 
   def play
