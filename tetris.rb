@@ -282,7 +282,7 @@ class Dealer
     dx = 0
     dy = 0.0625
     dr = 0
-    @game.fps = 30 + @lines_counter / 2
+    @game.fps = 30 + @lines_counter
     delay_fps = @game.fps / 10
 
     dx =  1 if Input.keys(:keyboard, {:duration => 1, :delay => delay_fps, :interval => delay_fps / 3}).include?(:right)
