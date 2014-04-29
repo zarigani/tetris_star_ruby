@@ -264,12 +264,14 @@ class Dealer
     dx = 0
     dy = 0.0625
     dr = 0
+    @game.fps = 30 + @lines_counter / 2
+    delay_fps = @game.fps / 10
 
-    dx =  1 if Input.keys(:keyboard, {:duration => 1, :delay => 3, :interval => 1}).include?(:right)
-    dx = -1 if Input.keys(:keyboard, {:duration => 1, :delay => 3, :interval => 1}).include?(:left)
-    dy =  1 if Input.keys(:keyboard, {:duration =>-1, :delay =>-1, :interval => 0}).include?(:down)
-    dr =  1 if Input.keys(:keyboard, {:duration => 1, :delay => 3, :interval => 3}).include?(:x)
-    dr =  3 if Input.keys(:keyboard, {:duration => 1, :delay => 3, :interval => 3}).include?(:z)
+    dx =  1 if Input.keys(:keyboard, {:duration => 1, :delay => delay_fps, :interval => delay_fps / 3}).include?(:right)
+    dx = -1 if Input.keys(:keyboard, {:duration => 1, :delay => delay_fps, :interval => delay_fps / 3}).include?(:left)
+    dy =  1 if Input.keys(:keyboard, {:duration =>-1, :delay =>        -1, :interval =>             0}).include?(:down)
+    dr =  1 if Input.keys(:keyboard, {:duration => 1, :delay => delay_fps, :interval => delay_fps    }).include?(:x)
+    dr =  3 if Input.keys(:keyboard, {:duration => 1, :delay => delay_fps, :interval => delay_fps    }).include?(:z)
     if @field.state == :dead then
       @state = :gameover
       return
