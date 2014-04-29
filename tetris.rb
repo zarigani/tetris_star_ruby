@@ -98,7 +98,7 @@ class Tetrimino
     @field = field
     @id = rand(0..6)
     @blocks = @@minos[@id]
-    @x, @y, @angle = 3, -1, 0
+    @x, @y, @angle = (4 - @blocks.size) / 2 + 3, -1, 0
     @state = :live
     @last_chance = 0
   end
