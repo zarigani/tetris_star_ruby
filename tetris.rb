@@ -98,23 +98,17 @@ class Tetrimino
     @game = game
     @field = field
     @id = rand(0..6)
-    @blocks = @@minos[@id]
+    @blocks = [@@minos[@id],                          #回転なし
+               @@minos[@id].transpose.map(&:reverse), #右90度回転
+               @@minos[@id].reverse.map(&:reverse),   #180度回転
+               @@minos[@id].transpose.reverse]        #左90度回転（右270度回転）
     @x, @y, @angle = (4 - @blocks.size) / 2 + 3, -1, 0
     @state = :falling
     @last_chance = 0
   end
   
   def blocks(angle = @angle)
-    case angle % 4
-    when 0
-      @blocks
-    when 1
-      @blocks.transpose.map(&:reverse)  #右90度回転
-    when 2
-      @blocks.reverse.map(&:reverse)    #180度回転
-    when 3
-      @blocks.transpose.reverse         #左90度回転（右270度回転）
-    end
+    @blocks[angle % 4]
   end
   
   def rotate(dr)
