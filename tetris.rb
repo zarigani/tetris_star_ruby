@@ -100,7 +100,7 @@ class Tetrimino
     @id = rand(0..6)
     @blocks = @@minos[@id]
     @x, @y, @angle = (4 - @blocks.size) / 2 + 3, -1, 0
-    @state = :live
+    @state = :falling
     @last_chance = 0
   end
   
@@ -139,7 +139,7 @@ class Tetrimino
       when @last_chance < 0
         @last_chance = @game.fps / 2
       when @last_chance == 0
-        @state = :dead
+        @state = :landed
       end
     end
   end
@@ -299,7 +299,7 @@ class Dealer
     @tetrimino.side_step(dx)
     @tetrimino.fall(dy)
 
-    if @tetrimino.state == :dead then
+    if @tetrimino.state == :landed then
       @field.import(@tetrimino)
       @field.flash_lines
       if @field.state == :clear then
@@ -330,7 +330,7 @@ class Dealer
     initialize
   end
 
-  def toggle_state
+  def switch_state
     case @state
     when :play     then @state = :pause
     when :pause    then @state = :play
@@ -345,6 +345,6 @@ end
 Game.run(WINDOW_W, WINDOW_H, :title => "tetris") do |game|
   @dealer ||= Dealer.new(game)
   break if Input.keys(:keyboard).include?(:escape)
-  @dealer.toggle_state if Input.keys(:keyboard, {:duration => 1, :delay => -1, :interval => 0}).include?(:space)
+  @dealer.switch_state if Input.keys(:keyboard, {:duration => 1, :delay => -1, :interval => 0}).include?(:space)
   @dealer.update
 end
