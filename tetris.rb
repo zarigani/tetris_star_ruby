@@ -16,7 +16,9 @@ RGBS = [[  0, 255, 255],
         [255,   0,   0],
         [  0,   0, 255],
         [255, 127,   0],
-        [255,   0, 255]]
+        [255,   0, 255],
+        [255, 255, 255],
+        [255, 255, 192]]
 FONT = Font.new("/Library/Fonts/Arial Bold.ttf", 24)
 
 
@@ -37,10 +39,9 @@ class Texture
 
   def draw_field(field)
     return if !field
-    alpha = (field.state == :live ? 255 : 64)
     field.matrix.each_with_index do |row, r|
       row.each_with_index do |col, c|
-        draw_block(c, r, RGBS[col] + [alpha]) if col != nil
+        draw_block(c, r, RGBS[col]) if col != nil
       end
     end
   end
@@ -167,9 +168,11 @@ end
 class Field
   attr_reader :matrix, :state
 
-  def initialize(row, col)
+  def initialize(game, row, col)
+    @game = game
     @matrix = Array.new(row){Array.new(col)}
     @state = :live
+    @flash_counter = 0
   end
 
   def import(tetrimino)
@@ -177,6 +180,21 @@ class Field
       row.each_with_index do |col, c|
         @matrix[tetrimino.y + r][tetrimino.x + c] = tetrimino.id if col == 1
       end
+    end
+  end
+
+  def flash_lines
+    @flash_counter -= 1
+    case
+    when @flash_counter < 0
+      @flash_counter = @game.fps / 2
+      @state = :flash
+    when @flash_counter == 0
+      @state = :clear
+    end
+
+    @matrix.each do |row|
+      row.map! {|i| i = @flash_counter % 2 + 7} if !row.include?(nil)
     end
   end
 
@@ -216,8 +234,8 @@ class Frame
     @lines_view.fill(Color.new(0, 0, 0, 128))
     @next_view.fill(Color.new(255, 255, 255, 128))
 
-    @field_view.draw_field(sender.field)
     @field_view.draw_tetrimino(sender.tetrimino)
+    @field_view.draw_field(sender.field)
     @score_view.draw_number(sender.score_counter)
     @lines_view.draw_number(sender.lines_counter)
     @next_view.draw_tetrimino(sender.nextmino, 0, 1)
@@ -247,7 +265,7 @@ class Dealer
   def initialize(game = @game)
     @game    ||= game
     @state     = :play
-    @field     = Field.new(FIELD_ROW, FIELD_COL)
+    @field     = Field.new(game, FIELD_ROW, FIELD_COL)
     @nextmino  = Tetrimino.new(game, @field)
     @tetrimino = Tetrimino.new(game, @field)
     @frame     = Frame.new(game.screen)
@@ -283,13 +301,16 @@ class Dealer
 
     if @tetrimino.state == :dead then
       @field.import(@tetrimino)
-      n = @field.clear_lines
-      @score_counter += n**2 * 100
-      @lines_counter += n
-      @field.freeze if @tetrimino.y <= 0
+      @field.flash_lines
+      if @field.state == :clear then
+        n = @field.clear_lines
+        @score_counter += n**2 * 100
+        @lines_counter += n
+        @field.freeze if @tetrimino.y <= 0
 
-      @tetrimino = @nextmino
-      @nextmino  = Tetrimino.new(@game, @field)
+        @tetrimino = @nextmino
+        @nextmino  = Tetrimino.new(@game, @field)
+      end
     end
 
     @frame.update(self)
