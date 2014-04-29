@@ -308,12 +308,10 @@ class Dealer
   end
 
   def toggle_state
-    if    @state == :play then
-      @state = :pause
-    elsif @state == :pause then
-      @state = :play
-    elsif @state == :gameover then
-      @state = :reset
+    case @state
+    when :play     then @state = :pause
+    when :pause    then @state = :play
+    when :gameover then @state = :reset
     end
   end
 
