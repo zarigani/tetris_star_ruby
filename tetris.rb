@@ -19,7 +19,8 @@ RGBS = [[  0, 255, 255],
         [255,   0, 255],
         [255, 255, 255],
         [255, 255, 192]]
-FONT = Font.new("/Library/Fonts/Arial Bold.ttf", 24)
+FONT_24 = Font.new("/Library/Fonts/Arial Bold.ttf", 24)
+FONT_36 = Font.new("/Library/Fonts/Arial Bold.ttf", 36)
 
 
 
@@ -47,23 +48,22 @@ class Texture
   end
 
   def draw_text(str, col, row)
-    render_text(str, col * BLOCK_SIZE,  row * BLOCK_SIZE, FONT, Color.new(0, 0, 0))
+    render_text(str, col * BLOCK_SIZE,  row * BLOCK_SIZE, FONT_24, Color.new(0, 0, 0))
   end
 
   def draw_number(num)
-    font_width, font_height = FONT.get_size(num.to_s)
+    font_width, font_height = FONT_24.get_size(num.to_s)
     margin_width, margin_height = 5, 0
     x = self.width  - font_width  - margin_width
     y = self.height - font_height - margin_height
-    render_text(num.to_s, x,  y, FONT, Color.new(0, 0, 0))
+    render_text(num.to_s, x,  y, FONT_24, Color.new(0, 0, 0))
   end
 
   def draw_message(str)
-    font = Font.new("/Library/Fonts/Arial Bold.ttf", 36)
-    font_width, font_height = font.get_size(str)
+    font_width, font_height = FONT_36.get_size(str)
     x = (self.width  - font_width ) / 2
     y = (self.height - font_height) / 2
-    render_text(str, x,  y, font, Color.new(255, 255, 255))
+    render_text(str, x,  y, FONT_36, Color.new(255, 255, 255))
   end
 
 end
