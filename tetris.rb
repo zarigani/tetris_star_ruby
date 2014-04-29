@@ -26,11 +26,11 @@ class Texture
     render_rect(x * BLOCK_SIZE + 1, y * BLOCK_SIZE + 1, BLOCK_SIZE - 1, BLOCK_SIZE - 1, Color.new(*rgb))
   end
 
-  def draw_tetrimino(tetrimino)
+  def draw_tetrimino(tetrimino, offset_x = 0, offset_y = 0)
     return if !tetrimino
     tetrimino.blocks.each_with_index do |row, r|
       row.each_with_index do |col, c|
-        draw_block(tetrimino.x + c , tetrimino.y + r, RGBS[tetrimino.id]) if col == 1
+        draw_block(tetrimino.x + c + offset_x , tetrimino.y + r + offset_y, RGBS[tetrimino.id]) if col == 1
       end
     end
   end
@@ -98,7 +98,7 @@ class Tetrimino
     @field = field
     @id = rand(0..6)
     @blocks = @@minos[@id]
-    @x, @y, @angle = 3, 0, 0
+    @x, @y, @angle = 3, -1, 0
     @state = :live
     @last_chance = 0
   end
@@ -220,7 +220,7 @@ class Frame
     @field_view.draw_tetrimino(sender.tetrimino)
     @score_view.draw_number(sender.score_counter)
     @lines_view.draw_number(sender.lines_counter)
-    @next_view.draw_tetrimino(sender.nextmino)
+    @next_view.draw_tetrimino(sender.nextmino, 0, 1)
 
     @screen.fill(Color.new(255, 255, 255))
     @screen.render_texture(@field_view,  1 * BLOCK_SIZE,  5 * BLOCK_SIZE)
