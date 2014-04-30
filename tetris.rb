@@ -120,7 +120,7 @@ class Tetrimino
     return if dr == 0
     if can_move?(0, 0, dr) then
       @angle += dr
-      @last_chance = @game.fps
+      @last_chance = @game.fps * 0.5
     end
   end
   
@@ -128,7 +128,7 @@ class Tetrimino
     return if dx == 0
     if can_move?(dx, 0, 0) then
       @x += dx
-      @last_chance = @game.fps
+      @last_chance = @game.fps * 0.5
     end
   end
   
@@ -136,7 +136,7 @@ class Tetrimino
     @y = @y.to_i if dy == 1
     if can_move?(0, 1, 0) then
       @y += dy
-      @last_chance = @game.fps
+      @last_chance = @game.fps * 0.5
     else
       @last_chance -= 1
       @state = :landed if @last_chance < 0
