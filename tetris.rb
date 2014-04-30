@@ -294,9 +294,11 @@ class Dealer
       return
     end
 
-    @tetrimino.rotate(dr)
-    @tetrimino.side_step(dx)
-    @tetrimino.fall(dy)
+    if @tetrimino.state == :falling then
+      @tetrimino.rotate(dr)
+      @tetrimino.side_step(dx)
+      @tetrimino.fall(dy)
+    end
 
     if @tetrimino.state == :landed then
       @field.import(@tetrimino)
