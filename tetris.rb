@@ -29,6 +29,7 @@ FONT_36 = Font.new("/Library/Fonts/Arial Bold.ttf", 36)
 
 
 
+# Star Rubyの描画可能な唯一のオブジェクト
 class Texture
   def draw_block(x, y, color)
     render_rect(x * BLOCK_SIZE + 1, y * BLOCK_SIZE + 1, BLOCK_SIZE - 1, BLOCK_SIZE - 1, color)
@@ -73,6 +74,8 @@ class Texture
 
 end
 
+# Tetriminoは、ランダムな4つのブロックの組み合わせ
+# Tetriminoは、2つの状態を持つ(:falling, :landed)
 class Tetrimino
   attr_reader :id, :state, :x, :y
   
@@ -174,6 +177,8 @@ class Tetrimino
   
 end
 
+# Fieldは、Tetriminoを積み上げるエリア
+# Fieldは、4つの状態を持つ(:live, :flash, :clear, :dead)
 class Field
   attr_reader :matrix, :state
 
@@ -220,6 +225,7 @@ class Field
 
 end
 
+# Frameは、ゲーム画面を定義する
 class Frame
   def initialize(screen)
     @screen = screen
@@ -268,6 +274,8 @@ class Frame
 
 end
 
+# Dealerは、ゲーム全体のコントローラー
+# Dealerは、4つの状態を持つ(:play, :pause, :gameover, :reset)
 class Dealer
   attr_reader :state, :field, :nextmino, :tetrimino, :score_counter, :lines_counter
 
