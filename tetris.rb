@@ -153,7 +153,7 @@ class Tetrimino
           if x + c < 0 ||
              x + c >= FIELD_COL ||
              y + r >= FIELD_ROW ||
-             @field.matrix[y + r][x + c] != nil then
+             y + r >= 0 && @field.matrix[y + r][x + c] != nil then
             return false
           end
         end
