@@ -350,10 +350,12 @@ class Dealer
   end
 
   def switch_state
-    case @state
-    when :play     then @state = :pause
-    when :pause    then @state = :play
-    when :gameover then @state = :reset
+    if Input.keys(:keyboard, {:duration => 1, :delay => -1, :interval => 0}).include?(:space) then
+      case @state
+      when :play     then @state = :pause
+      when :pause    then @state = :play
+      when :gameover then @state = :reset
+      end
     end
   end
 
@@ -362,8 +364,8 @@ end
 
 
 Game.run(WINDOW_W, WINDOW_H, :title => "tetris") do |game|
-  @dealer ||= Dealer.new(game)
   break if Input.keys(:keyboard).include?(:escape)
-  @dealer.switch_state if Input.keys(:keyboard, {:duration => 1, :delay => -1, :interval => 0}).include?(:space)
+  @dealer ||= Dealer.new(game)
+  @dealer.switch_state
   @dealer.update
 end
