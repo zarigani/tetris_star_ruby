@@ -117,29 +117,29 @@ class Tetrimino
   end
   
   def rotate(dr)
+    return if dr == 0
     if can_move?(0, 0, dr) then
       @angle += dr
+      @last_chance = @game.fps
     end
   end
   
   def side_step(dx)
+    return if dx == 0
     if can_move?(dx, 0, 0) then
       @x += dx
+      @last_chance = @game.fps
     end
   end
   
   def fall(dy)
-    @last_chance -= 1
     @y = @y.to_i if dy == 1
     if can_move?(0, 1, 0) then
       @y += dy
+      @last_chance = @game.fps
     else
-      case
-      when @last_chance < 0
-        @last_chance = @game.fps / 2
-      when @last_chance == 0
-        @state = :landed
-      end
+      @last_chance -= 1
+      @state = :landed if @last_chance < 0
     end
   end
 
