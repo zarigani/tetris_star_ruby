@@ -107,7 +107,7 @@ class Tetrimino
                @@minos[@id].transpose.map(&:reverse), #右90度回転
                @@minos[@id].reverse.map(&:reverse),   #180度回転
                @@minos[@id].transpose.reverse]        #左90度回転（右270度回転）
-    @x, @y, @angle = (4 - @blocks.size) / 2 + 3, -1, 0
+    @x, @y, @angle = (4 - @blocks.size) / 2 + 3, -1.9, 0
     @state = :falling
     @last_chance = 0
   end
@@ -237,7 +237,7 @@ class Frame
     @field_view.draw_field(sender.field)
     @score_view.draw_number(sender.score_counter)
     @lines_view.draw_number(sender.lines_counter)
-    @next_view.draw_tetrimino(sender.nextmino, 0, 1)
+    @next_view.draw_tetrimino(sender.nextmino, 0, 1.9)
 
     @screen.fill(WHITE_COLOR)
     @screen.render_texture(@field_view,  1 * BLOCK_SIZE,  5 * BLOCK_SIZE)
@@ -307,7 +307,7 @@ class Dealer
         n = @field.clear_lines
         @score_counter += n**2 * 100
         @lines_counter += n
-        @field.freeze if @tetrimino.y <= 0
+        @field.freeze if @tetrimino.y < 0
 
         @tetrimino = @nextmino
         @nextmino  = Tetrimino.new(@game, @field)
