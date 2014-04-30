@@ -10,30 +10,33 @@ WINDOW_ROW = 26
 WINDOW_COL = 18
 WINDOW_W = BLOCK_SIZE * WINDOW_COL
 WINDOW_H = BLOCK_SIZE * WINDOW_ROW
-RGBS = [[  0, 255, 255],
-        [255, 255,   0],
-        [  0, 255,   0],
-        [255,   0,   0],
-        [  0,   0, 255],
-        [255, 127,   0],
-        [255,   0, 255],
-        [255, 255, 255],
-        [255, 255, 192]]
+COLORS = [Color.new(  0, 255, 255), #0
+          Color.new(255, 255,   0), #1
+          Color.new(  0, 255,   0), #2
+          Color.new(255,   0,   0), #3
+          Color.new(  0,   0, 255), #4
+          Color.new(255, 128,   0), #5
+          Color.new(255,   0, 255), #6
+          Color.new(255, 255, 255), #7
+          Color.new(255, 255, 192)] #8
+WHITE_COLOR     = Color.new(255, 255, 255)
+WHITE_COLOR_128 = Color.new(255, 255, 255, 128)
+BLACK_COLOR     = Color.new(0, 0, 0)
+BLACK_COLOR_128 = Color.new(0, 0, 0, 128)
+BLACK_COLOR_160 = Color.new(0, 0, 0, 160)
 FONT_24 = Font.new("/Library/Fonts/Arial Bold.ttf", 24)
 FONT_36 = Font.new("/Library/Fonts/Arial Bold.ttf", 36)
 
-
-
 class Texture
-  def draw_block(x, y, rgb)
-    render_rect(x * BLOCK_SIZE + 1, y * BLOCK_SIZE + 1, BLOCK_SIZE - 1, BLOCK_SIZE - 1, Color.new(*rgb))
+  def draw_block(x, y, color)
+    render_rect(x * BLOCK_SIZE + 1, y * BLOCK_SIZE + 1, BLOCK_SIZE - 1, BLOCK_SIZE - 1, color)
   end
 
   def draw_tetrimino(tetrimino, offset_x = 0, offset_y = 0)
     return if !tetrimino
     tetrimino.blocks.each_with_index do |row, r|
       row.each_with_index do |col, c|
-        draw_block(tetrimino.x + c + offset_x , tetrimino.y + r + offset_y, RGBS[tetrimino.id]) if col == 1
+        draw_block(tetrimino.x + c + offset_x , tetrimino.y + r + offset_y, COLORS[tetrimino.id]) if col == 1
       end
     end
   end
@@ -42,13 +45,13 @@ class Texture
     return if !field
     field.matrix.each_with_index do |row, r|
       row.each_with_index do |col, c|
-        draw_block(c, r, RGBS[col]) if col != nil
+        draw_block(c, r, COLORS[col]) if col != nil
       end
     end
   end
 
   def draw_text(str, col, row)
-    render_text(str, col * BLOCK_SIZE,  row * BLOCK_SIZE, FONT_24, Color.new(0, 0, 0))
+    render_text(str, col * BLOCK_SIZE,  row * BLOCK_SIZE, FONT_24, BLACK_COLOR)
   end
 
   def draw_number(num)
@@ -56,14 +59,14 @@ class Texture
     margin_width, margin_height = 5, 0
     x = self.width  - font_width  - margin_width
     y = self.height - font_height - margin_height
-    render_text(num.to_s, x,  y, FONT_24, Color.new(0, 0, 0))
+    render_text(num.to_s, x,  y, FONT_24, BLACK_COLOR)
   end
 
   def draw_message(str)
     font_width, font_height = FONT_36.get_size(str)
     x = (self.width  - font_width ) / 2
     y = (self.height - font_height) / 2
-    render_text(str, x,  y, FONT_36, Color.new(255, 255, 255))
+    render_text(str, x,  y, FONT_36, WHITE_COLOR)
   end
 
 end
@@ -214,19 +217,19 @@ class Frame
     @next_view  = Texture.new(FIELD_W,        2 * BLOCK_SIZE)
 
     @pause_overlay    = Texture.new(WINDOW_W, WINDOW_H)
-    @pause_overlay.fill(Color.new(0, 0, 0, 160))
+    @pause_overlay.fill(BLACK_COLOR_160)
     @pause_overlay.draw_message("Pause")
 
     @gameover_overlay = Texture.new(WINDOW_W, WINDOW_H)
-    @gameover_overlay.fill(Color.new(0, 0, 0, 160))
+    @gameover_overlay.fill(BLACK_COLOR_160)
     @gameover_overlay.draw_message("Game Over")
   end
   
   def update(sender)
-    @field_view.fill(Color.new(0, 0, 0, 128))
-    @score_view.fill(Color.new(0, 0, 0, 128))
-    @lines_view.fill(Color.new(0, 0, 0, 128))
-    @next_view.fill(Color.new(255, 255, 255, 128))
+    @field_view.fill(BLACK_COLOR_128)
+    @score_view.fill(BLACK_COLOR_128)
+    @lines_view.fill(BLACK_COLOR_128)
+    @next_view.fill(WHITE_COLOR_128)
 
     @field_view.draw_tetrimino(sender.tetrimino)
     @field_view.draw_field(sender.field)
@@ -234,7 +237,7 @@ class Frame
     @lines_view.draw_number(sender.lines_counter)
     @next_view.draw_tetrimino(sender.nextmino, 0, 1)
 
-    @screen.fill(Color.new(255, 255, 255))
+    @screen.fill(WHITE_COLOR)
     @screen.render_texture(@field_view,  1 * BLOCK_SIZE,  5 * BLOCK_SIZE)
     @screen.draw_text("SCORE", 13,  5)
     @screen.render_texture(@score_view, 13 * BLOCK_SIZE,  6 * BLOCK_SIZE)
