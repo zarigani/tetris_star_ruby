@@ -98,11 +98,11 @@ class Tetrimino
   @@minos << [[0,1,0],
               [1,1,1],
               [0,0,0]]
-  
+
   def initialize(game, field)
     @game = game
     @field = field
-    @id = rand(0..6)
+    @id = uniq_rand(0..6)
     @blocks = [@@minos[@id],                          #回転なし
                @@minos[@id].transpose.map(&:reverse), #右90度回転
                @@minos[@id].reverse.map(&:reverse),   #180度回転
@@ -112,6 +112,16 @@ class Tetrimino
     @last_chance = 0
   end
   
+  def uniq_rand(range)
+    @@uniq_logs ||= []
+    begin
+      id = Random.rand(range)
+    end while @@uniq_logs.include?(id)
+    @@uniq_logs << id
+    @@uniq_logs = nil if @@uniq_logs.size >= range.size
+    id
+  end
+
   def blocks(angle = @angle)
     @blocks[angle % 4]
   end
