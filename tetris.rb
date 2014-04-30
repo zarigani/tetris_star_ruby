@@ -27,6 +27,8 @@ BLACK_COLOR_160 = Color.new(0, 0, 0, 160)
 FONT_24 = Font.new("/Library/Fonts/Arial Bold.ttf", 24)
 FONT_36 = Font.new("/Library/Fonts/Arial Bold.ttf", 36)
 
+
+
 class Texture
   def draw_block(x, y, color)
     render_rect(x * BLOCK_SIZE + 1, y * BLOCK_SIZE + 1, BLOCK_SIZE - 1, BLOCK_SIZE - 1, color)
@@ -191,12 +193,12 @@ class Field
     end
 
     @matrix.each do |row|
-      row.map! {|i| i = @flash_counter % 2 + 7} if !row.include?(nil)
+      row.map! {|i| i = @flash_counter % 2 + 7} if row.all?
     end
   end
 
   def clear_lines
-    @matrix.reject!{|row| !row.include?(nil)}
+    @matrix.reject!{|row| row.all?}
     deleted_line = FIELD_ROW - @matrix.size
     deleted_line.times{@matrix.unshift(Array.new(10){nil})}
     deleted_line
